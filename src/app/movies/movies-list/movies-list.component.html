@@ -1,0 +1,14 @@
+<app-generic-list [list]="movies">
+  <ng-container loading> Movies are loading.... </ng-container>
+  <ng-container empty>No movies to show...</ng-container>
+  <ng-container content>
+    <div *ngFor="let movie of movies; let i = index" class="movie-container">
+      <div>
+        <h2>{{ i + 1 }}. {{ movie.title }}</h2>
+        <button (click)="remove(i)">Remove</button>
+      </div>
+      <div>{{ movie.releaseDate | date: "dd-MMM-yyyy" }}</div>
+      <div>{{ movie.price | currency }}</div>
+    </div>
+  </ng-container>
+</app-generic-list>
