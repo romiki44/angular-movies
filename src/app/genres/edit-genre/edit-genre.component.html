@@ -1,1 +1,6 @@
-<p>edit-genre works!</p>
+<p>Edit Genre</p>
+
+<app-form-genre
+  [model]="model"
+  (onSaveChanges)="saveChanges($event)"
+></app-form-genre>

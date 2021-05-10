@@ -1,16 +1,17 @@
 import { Component, OnInit } from '@angular/core';
+import { MovieCreationDTO } from '../movies.model';
 
 @Component({
   selector: 'app-create-movie',
   templateUrl: './create-movie.component.html',
-  styles: [
-  ]
+  styles: [],
 })
 export class CreateMovieComponent implements OnInit {
+  constructor() {}
 
-  constructor() { }
+  ngOnInit(): void {}
 
-  ngOnInit(): void {
+  saveChanges(movieCreationDTO: MovieCreationDTO) {
+    console.log(movieCreationDTO);
   }
-
 }

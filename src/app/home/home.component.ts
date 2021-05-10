@@ -38,10 +38,11 @@ export class HomeComponent implements OnInit {
           'https://upload.wikimedia.org/wikipedia/en/8/8a/The_Avengers_%282012_film%29_poster.jpg',
       },
       {
-        title: 'Toy Story',
+        title: 'Inception',
         releaseDate: new Date('2021-09-10'),
         price: 742.89,
-        poster: 'https://upload.wikimedia.org/wikipedia/en/1/13/Toy_Story.jpg',
+        poster:
+          'https://upload.wikimedia.org/wikipedia/en/2/2e/Inception_%282010%29_theatrical_poster.jpg',
       },
     ];
   }

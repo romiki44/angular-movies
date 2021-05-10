@@ -1,16 +1,17 @@
 import { Component, OnInit } from '@angular/core';
+import { MovieTheatersCreationDTO } from '../movie-theaters.model';
 
 @Component({
   selector: 'app-create-movie-theater',
   templateUrl: './create-movie-theater.component.html',
-  styles: [
-  ]
+  styles: [],
 })
 export class CreateMovieTheaterComponent implements OnInit {
+  constructor() {}
 
-  constructor() { }
+  ngOnInit(): void {}
 
-  ngOnInit(): void {
+  saveChanges(movieTheater: MovieTheatersCreationDTO) {
+    console.log(movieTheater);
   }
-
 }
