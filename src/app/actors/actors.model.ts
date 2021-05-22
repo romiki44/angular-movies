@@ -6,8 +6,16 @@ export interface ActorCreationDTO {
 }
 
 export interface ActorDTO {
+  id: number;
   name: string;
   dateOfBirth: Date;
   picture: string;
   biography: string;
+}
+
+export interface ActorsMovieDTO {
+  id: number;
+  name: string;
+  character: string;
+  picture: string;
 }

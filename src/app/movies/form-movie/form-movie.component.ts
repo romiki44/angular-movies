@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MovieDTO, MovieCreationDTO } from '../movies.model';
 import { MultipleSelectorModel } from '../../utilities/multiple-selector/multiple-selector.model';
+import { ActorsMovieDTO } from '../../actors/actors.model';
 
 @Component({
   selector: 'app-form-movie',
@@ -13,25 +14,20 @@ export class FormMovieComponent implements OnInit {
 
   @Input()
   model: MovieDTO;
+  @Input()
+  nonSelectedGenres: MultipleSelectorModel[] = [];
+  @Input()
+  nonSelectedMovieTheaters: MultipleSelectorModel[] = [];
+  @Input()
+  selectedActors: ActorsMovieDTO[] = [];
+  @Input()
+  selectedGenres: MultipleSelectorModel[] = [];
+  @Input()
+  selectedMovieTheaters: MultipleSelectorModel[] = [];
   @Output()
   onSaveChanges = new EventEmitter<MovieCreationDTO>();
 
   form: FormGroup;
-  nonSelectedGenres: MultipleSelectorModel[] = [
-    { key: 1, value: 'Action' },
-    { key: 2, value: 'Comedy' },
-    { key: 3, value: 'Sci-fi' },
-  ];
-
-  selectedGenres: MultipleSelectorModel[] = [];
-
-  nonSelectedMovieTheaters: MultipleSelectorModel[] = [
-    { key: 1, value: 'Agora' },
-    { key: 2, value: 'Sambil' },
-    { key: 3, value: 'Megacentro' },
-  ];
-
-  selectedMovieTheaters: MultipleSelectorModel[] = [];
 
   ngOnInit(): void {
     this.form = this.formBuilder.group({
@@ -43,6 +39,7 @@ export class FormMovieComponent implements OnInit {
       poster: '',
       genresIds: '',
       movieTheatersIds: '',
+      actors: '',
     });
 
     if (this.model !== undefined) {
@@ -58,6 +55,11 @@ export class FormMovieComponent implements OnInit {
       (value) => value.key
     );
     this.form.get('movieTheatersIds').setValue(moviesTheatersIds);
+
+    const actors = this.selectedActors.map((value) => {
+      return { id: value.id, character: value.character };
+    });
+    this.form.get('actors').setValue(actors);
 
     this.onSaveChanges.emit(this.form.value);
   }

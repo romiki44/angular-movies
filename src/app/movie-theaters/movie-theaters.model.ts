@@ -5,6 +5,7 @@ export interface MovieTheatersCreationDTO {
 }
 
 export interface MovieTheatersDTO {
+  id: number;
   name: string;
   latitude: number;
   longitude: number;

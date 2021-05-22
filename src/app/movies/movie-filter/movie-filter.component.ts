@@ -1,5 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { MoviesService } from '../movies.service';
+import { GenreDTO } from '../../genres/genres.model';
+import { MovieDTO } from '../movies.model';
+import { GenresService } from '../../genres/genres.service';
+import { HttpResponse } from '@angular/common/http';
+import { Location } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
+import { PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-movie-filter',
@@ -7,63 +15,121 @@ import { FormBuilder, FormGroup } from '@angular/forms';
   styleUrls: ['./movie-filter.component.css'],
 })
 export class MovieFilterComponent implements OnInit {
-  constructor(private formBuilder: FormBuilder) {}
+  constructor(
+    private formBuilder: FormBuilder,
+    private moviesService: MoviesService,
+    private genresService: GenresService,
+    private location: Location,
+    private activatedRoute: ActivatedRoute
+  ) {}
 
   form: FormGroup;
-  genres = [
-    { id: 1, name: 'Action' },
-    { id: 2, name: 'Comedy' },
-    { id: 3, name: 'Sci-fi' },
-    { id: 3, name: 'Drama' },
-  ];
-  movies = [
-    {
-      title: 'Spider-Man',
-      poster:
-        'https://upload.wikimedia.org/wikipedia/en/b/bd/Spider-Man_Far_From_Home_poster.jpg',
-    },
-    {
-      title: 'Moana',
-      poster:
-        'https://upload.wikimedia.org/wikipedia/en/2/26/Moana_Teaser_Poster.jpg',
-    },
-    {
-      title: 'Avengers',
-      poster:
-        'https://upload.wikimedia.org/wikipedia/en/8/8a/The_Avengers_%282012_film%29_poster.jpg',
-    },
-    {
-      title: 'Toy Story',
-      poster:
-        'https://upload.wikimedia.org/wikipedia/en/2/2e/Inception_%282010%29_theatrical_poster.jpg',
-    },
-  ];
-  originalMovies = this.movies;
+  genres: GenreDTO[];
+  movies: MovieDTO[];
+  currentPage = 1;
+  recordsPerPage = 10;
+  initialFormValues: any;
+  totalAmountOfRecords;
 
   ngOnInit(): void {
     this.form = this.formBuilder.group({
       title: '',
       genreId: 0,
-      upcommingReleases: false,
+      upcomingReleases: false,
       inTheaters: false,
     });
 
-    this.form.valueChanges.subscribe((values) => {
-      //console.log(values);
-      this.movies = this.originalMovies;
-      this.filterMovies(values);
+    this.initialFormValues = this.form.value;
+    this.readParametersFromURL();
+
+    this.genresService.getAll().subscribe((genres) => {
+      this.genres = genres;
+
+      this.filterMovies(this.form.value);
+
+      this.form.valueChanges.subscribe((values) => {
+        this.filterMovies(values);
+        this.writeParametersInUrl();
+      });
     });
   }
 
   filterMovies(values: any) {
-    if (values.title) {
-      this.movies = this.movies.filter(
-        (movie) => movie.title.indexOf(values.title) !== -1
-      );
+    values.page = this.currentPage;
+    values.recordsPerPage = this.recordsPerPage;
+
+    this.moviesService
+      .filter(values)
+      .subscribe((response: HttpResponse<MovieDTO[]>) => {
+        this.movies = response.body;
+        this.totalAmountOfRecords = response.headers.get(
+          'totalAmountOfRecords'
+        );
+      });
+  }
+
+  private readParametersFromURL() {
+    this.activatedRoute.queryParams.subscribe((params) => {
+      var obj: any = {};
+
+      if (params.title) {
+        obj.title = params.title;
+      }
+      if (params.genreId) {
+        obj.genreId = Number(params.genreId);
+      }
+      if (params.upcomingReleases) {
+        obj.upcomingReleases = params.upcomingReleases;
+      }
+      if (params.inTheaters) {
+        obj.inTheaters = params.inTheaters;
+      }
+      if (params.page) {
+        this.currentPage = params.page;
+      }
+      if (params.recordsPerPage) {
+        this.recordsPerPage = params.recordsPerPage;
+      }
+
+      this.form.patchValue(obj);
+    });
+  }
+
+  private writeParametersInUrl() {
+    const queryStrings = [];
+    const formValues = this.form.value;
+
+    if (formValues.title) {
+      queryStrings.push(`title=${formValues.title}`);
     }
+    if (formValues.genreId != '0') {
+      queryStrings.push(`genreId=${formValues.genreId}`);
+    }
+    if (formValues.upcomingReleases) {
+      queryStrings.push(`upcomingReleases=${formValues.upcomingReleases}`);
+    }
+    if (formValues.inTheaters) {
+      queryStrings.push(`inTheaters=${formValues.inTheaters}`);
+    }
+
+    queryStrings.push(`page=${this.currentPage}`);
+    queryStrings.push(`recordsPerPage=${this.recordsPerPage}`);
+
+    this.location.replaceState('movies/filter', queryStrings.join('&'));
+  }
+
+  paginatorUpdate(event: PageEvent) {
+    this.currentPage = event.pageIndex + 1;
+    this.recordsPerPage = event.pageSize;
+    this.writeParametersInUrl();
+    this.filterMovies(this.form.value);
   }
 
   clearForm() {
-    this.form.reset();
+    this.form.patchValue(this.initialFormValues);
+  }
+
+  onDelete() {
+    this.filterMovies(this.form.value);
   }
 }
