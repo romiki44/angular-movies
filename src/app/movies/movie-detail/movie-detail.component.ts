@@ -4,6 +4,8 @@ import { ActivatedRoute } from '@angular/router';
 import { MovieDTO } from '../movies.model';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { CoordinatesMapWithMessage } from '../../utilities/map/coordinate';
+import { RatingService } from '../../utilities/rating.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-movie-detail',
@@ -14,7 +16,8 @@ export class MovieDetailComponent implements OnInit {
   constructor(
     private moviesService: MoviesService,
     private activatedRoute: ActivatedRoute,
-    private sanitazer: DomSanitizer
+    private sanitazer: DomSanitizer,
+    private ratingService: RatingService
   ) {}
 
   movie: MovieDTO;
@@ -55,5 +58,11 @@ export class MovieDetailComponent implements OnInit {
 
     const embeddedLink = `https://www.youtube.com/embed/${videoId}`;
     return this.sanitazer.bypassSecurityTrustResourceUrl(embeddedLink);
+  }
+
+  onRating(rate: number) {
+    this.ratingService.rate(this.movie.id, rate).subscribe(() => {
+      Swal.fire('Success', 'Your vote has been received', 'success');
+    });
   }
 }
